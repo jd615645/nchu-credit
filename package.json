@@ -1,0 +1,14 @@
+{
+  "name": "nchuCrawler",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "cheerio": "^0.22.0",
+    "fs": "^0.0.1-security",
+    "html-entities": "^1.2.1",
+    "request": "^2.81.0",
+    "request-promise": "^4.2.0"
+  }
+}
