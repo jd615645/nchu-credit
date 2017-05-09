@@ -65,7 +65,7 @@ var getCredit = exports.getCredit = (id, pw) => {
       v_lang: 'chn'
     }})
   }).then($ => {
-    debug($)
+    // debug($)
     return rpcookie(onepiece + 'grad_stud_qry?v_iden_kind=1&v_code=13&v_pass=N&v_type=1')
   })
   .then($ => {
@@ -99,7 +99,7 @@ var getCredit = exports.getCredit = (id, pw) => {
       })
       rows.push(row)
     })
-    // debugJson(rows)
+    debugJson(rows)
     return rows
   })
 }
@@ -121,7 +121,8 @@ function debugJson (json) {
   fs.appendFileAsync('debug.html', json)
 }
 
-if (envDev) { // main function for test
+if (envDev) {
+  // main function for test
   var nchu = require('./nchu.json')
 
   getCredit(nchu.id, nchu.pw).then(debugJson).catch(e => {
