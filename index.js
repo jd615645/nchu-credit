@@ -30,12 +30,13 @@ var server = http.createServer(function (req, res) {
 server.listen(3000, function () {
   console.log('Listening on port 3000')
 })
-router.use(bodyParser.text())
+router.use(bodyParser.urlencoded())
 
-router.post('/', getData)
+router.post('/login', getData)
 
 function getData (req, res) {
-  let postData = JSON.parse(req.body)
+  console.log(req.body)
+  let postData = req.body
   let schoolId = postData.id
   let schoolPw = postData.pw
 
@@ -43,9 +44,14 @@ function getData (req, res) {
     'Content-Type': 'text/plain'
   })
 
-  getCredit(schoolId, schoolPw).then(data => {
-    res.end(JSON.stringify(data))
-  })
+  try {
+    getCredit(schoolId, schoolPw).then(data => {
+      res.end(JSON.stringify(data))
+    })
+  } catch(e) {
+    // console.log('login error')
+    res.end('error')
+  }
 }
 
 function getCredit (schoolId, schoolPw) {
