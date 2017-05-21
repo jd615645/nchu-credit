@@ -27,12 +27,12 @@ var server = http.createServer(function (req, res) {
   })
 })
 
-server.listen(3000, function () {
+server.listen(3001, function () {
   console.log('Listening on port 3000')
 })
 router.use(bodyParser.urlencoded())
 
-router.post('/login', getData)
+router.post('/', getData)
 
 function getData (req, res) {
   console.log(req.body)
@@ -49,7 +49,7 @@ function getData (req, res) {
       res.end(JSON.stringify(data))
     })
   } catch(e) {
-    // console.log('login error')
+    console.log(e)
     res.end('error')
   }
 }
@@ -64,6 +64,10 @@ function getCredit (schoolId, schoolPw) {
     simple: false,
     followRedirect: true
   })
+  let courseList = {
+    'studentName': '',
+    'courseList': []
+  }
 
   return rpcookie(nchuam + 'idff/sso?id=63&sid=0&option=credential&sid=0')
     .then($ => {
@@ -97,10 +101,17 @@ function getCredit (schoolId, schoolPw) {
       }})
     })
     .then($ => {
+      return rpcookie(onepiece + 'grad_stud_summary')
+    })
+    .then($ => {
+      let name = cheerio($('font')[3]).text()
+      courseList['studentName'] = name
+    })
+    .then($ => {
       return rpcookie(onepiece + 'grad_stud_qry?v_iden_kind=1&v_code=13&v_pass=N&v_type=1')
     })
     .then($ => {
-      let rows = []
+      // let rows = []
       let head = []
       $('th').each((i, th) => {
         head.push(cheerio(th).text())
@@ -126,8 +137,47 @@ function getCredit (schoolId, schoolPw) {
             throw new Error(row[key] + ' can not be parse as int.')
           }
         })
-        rows.push(row)
+        courseList['courseList'].push(row)
+      // rows.push(row)
       })
-      return rows
+      // return rows
+      return courseList['courseList']
+    })
+    .then($ => {
+      return rpcookie(onepiece + 'grad_stud_qry?v_iden_kind=1&v_code=8&v_pass=N&v_type=1')
+    })
+    .then($ => {
+      // debug($)
+      // let rows = []
+      let head = []
+      $('th').each((i, th) => {
+        head.push(cheerio(th).text())
+      })
+      // debugJson(head)
+      $('tr').each((i, tr) => {
+        let row = []
+        cheerio(tr).find('td').each((i, td) => {
+          row.push(_.trim(cheerio(td).text()))
+        })
+        row = _.zipObject(head, row)
+        delete row['序號']
+        _.each(['學年', '學期', '畢業學分', '成績', '承認別'], key => {
+          if (/^\d+$/.test(row[key])) {
+            row[key] = _.parseInt(row[key])
+          } else if (key === '成績') {
+            if (row[key] === 'P') {
+              row[key] = 100
+            } else {
+              row[key] = 0
+            }
+          }
+          if (!_.isSafeInteger(row[key])) {
+            throw new Error(row[key] + ' can not be parse as int.')
+          }
+        })
+        courseList['courseList'].push(row)
+      // rows.push(row)
+      })
+      return courseList
     })
 }

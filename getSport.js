@@ -26,12 +26,6 @@ var getCredit = exports.getCredit = (id, pw) => {
     followRedirect: true
   })
 
-  let courseList = {
-    'name': 'name',
-    'studentId': id,
-    'list': []
-  }
-
   return rpcookie(nchuam + 'idff/sso?id=63&sid=0&option=credential&sid=0')
     .then($ => {
       // debug($('form'))
@@ -72,54 +66,9 @@ var getCredit = exports.getCredit = (id, pw) => {
       }})
     })
     .then($ => {
-      return rpcookie(onepiece + 'grad_stud_summary')
-    })
-    .then($ => {
-      let name = cheerio($('font')[3]).text()
-      courseList['name'] = name
-    })
-    .then($ => {
-      // debug($)
-      return rpcookie(onepiece + 'grad_stud_qry?v_iden_kind=1&v_code=13&v_pass=N&v_type=1')
-    })
-    .then($ => {
-      // debug($)
-      let rows = []
-      let head = []
-      $('th').each((i, th) => {
-        head.push(cheerio(th).text())
-      })
-      // debugJson(head)
-      $('tr').each((i, tr) => {
-        let row = []
-        cheerio(tr).find('td').each((i, td) => {
-          row.push(_.trim(cheerio(td).text()))
-        })
-        row = _.zipObject(head, row)
-        delete row['序號']
-        _.each(['學年', '學期', '畢業學分', '成績', '承認別'], key => {
-          if (/^\d+$/.test(row[key])) {
-            row[key] = _.parseInt(row[key])
-          } else if (key === '成績') {
-            if (row[key] === 'P') {
-              row[key] = 100
-            } else {
-              row[key] = 0
-            }
-          }
-          if (!_.isSafeInteger(row[key])) {
-            throw new Error(row[key] + ' can not be parse as int.')
-          }
-        })
-        courseList['list'].push(row)
-        rows.push(row)
-      })
-    })
-    .then($ => {
       return rpcookie(onepiece + 'grad_stud_qry?v_iden_kind=1&v_code=8&v_pass=N&v_type=1')
     })
     .then($ => {
-      // debug($)
       let rows = []
       let head = []
       $('th').each((i, th) => {
@@ -147,13 +96,10 @@ var getCredit = exports.getCredit = (id, pw) => {
             throw new Error(row[key] + ' can not be parse as int.')
           }
         })
-        courseList['list'].push(row)
         rows.push(row)
-      // debugJson(courseList)
       })
-    })
-    .then($ => {
-      debugJson(courseList)
+      debugJson(rows)
+      return rows
     })
 }
 
