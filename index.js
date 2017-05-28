@@ -28,7 +28,7 @@ var server = http.createServer(function (req, res) {
 })
 
 server.listen(3001, function () {
-  console.log('Listening on port 3000')
+  console.log('Listening on port 3001')
 })
 router.use(bodyParser.urlencoded())
 
@@ -66,6 +66,7 @@ function getCredit (schoolId, schoolPw) {
   })
   let courseList = {
     'studentName': '',
+    'studentDept': '',
     'courseList': []
   }
 
@@ -105,7 +106,9 @@ function getCredit (schoolId, schoolPw) {
     })
     .then($ => {
       let name = cheerio($('font')[3]).text()
+      let dept = cheerio($('font')[6]).text().split(' ')[0]
       courseList['studentName'] = name
+      courseList['studentDept'] = dept
     })
     .then($ => {
       return rpcookie(onepiece + 'grad_stud_qry?v_iden_kind=1&v_code=13&v_pass=N&v_type=1')
