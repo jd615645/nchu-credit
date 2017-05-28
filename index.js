@@ -35,7 +35,7 @@ router.use(bodyParser.urlencoded())
 router.post('/', getData)
 
 function getData (req, res) {
-  console.log(req.body)
+  // console.log(req.body)
   let postData = req.body
   let schoolId = postData.id
   let schoolPw = postData.pw
