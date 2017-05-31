@@ -130,10 +130,10 @@ function getCredit (schoolId, schoolPw) {
           if (/^\d+$/.test(row[key])) {
             row[key] = _.parseInt(row[key])
           } else if (key === '成績') {
-            if (row[key] === 'P') {
-              row[key] = 100
-            } else {
+            if (row[key] === 'N') {
               row[key] = 0
+            } else {
+              row[key] = 100
             }
           }
           if (!_.isSafeInteger(row[key])) {
