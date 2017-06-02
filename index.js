@@ -127,13 +127,16 @@ function getCredit (schoolId, schoolPw) {
         row = _.zipObject(head, row)
         delete row['序號']
         _.each(['學年', '學期', '畢業學分', '成績', '承認別'], key => {
+
           if (/^\d+$/.test(row[key])) {
             row[key] = _.parseInt(row[key])
           } else if (key === '成績') {
-            if (row[key] === 'N') {
-              row[key] = 0
-            } else {
+            console.log(row['課程名稱'] + ': ' +row[key])
+            // debug(row[key])
+            if (row[key] === 'P') {
               row[key] = 100
+            } else {
+              row[key] = 0
             }
           }
           if (!_.isSafeInteger(row[key])) {
