@@ -119,7 +119,7 @@ function getCredit (schoolId, schoolPw) {
       $('th').each((i, th) => {
         head.push(cheerio(th).text())
       })
-      $('tr').each((i, tr) => {
+      $('table[border="1"] tr').each((i, tr) => {
         let row = []
         cheerio(tr).find('td').each((i, td) => {
           row.push(_.trim(cheerio(td).text()))
@@ -131,7 +131,6 @@ function getCredit (schoolId, schoolPw) {
           if (/^\d+$/.test(row[key])) {
             row[key] = _.parseInt(row[key])
           } else if (key === '成績') {
-            console.log(row['課程名稱'] + ': ' +row[key])
             // debug(row[key])
             if (row[key] === 'P') {
               row[key] = 100
@@ -160,7 +159,7 @@ function getCredit (schoolId, schoolPw) {
         head.push(cheerio(th).text())
       })
       // debugJson(head)
-      $('tr').each((i, tr) => {
+      $('table[border="1"] tr').each((i, tr) => {
         let row = []
         cheerio(tr).find('td').each((i, td) => {
           row.push(_.trim(cheerio(td).text()))

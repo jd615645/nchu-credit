@@ -90,7 +90,7 @@ var getCredit = exports.getCredit = (id, pw) => {
         head.push(cheerio(th).text())
       })
       // debugJson(head)
-      $('tr').each((i, tr) => {
+      $('table[border="1"] tr').each((i, tr) => {
         let row = []
         cheerio(tr).find('td').each((i, td) => {
           row.push(_.trim(cheerio(td).text()))
@@ -126,7 +126,7 @@ var getCredit = exports.getCredit = (id, pw) => {
         head.push(cheerio(th).text())
       })
       // debugJson(head)
-      $('tr').each((i, tr) => {
+      $('table[border="1"] tr').each((i, tr) => {
         let row = []
         cheerio(tr).find('td').each((i, td) => {
           row.push(_.trim(cheerio(td).text()))
