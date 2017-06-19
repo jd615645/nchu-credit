@@ -134,7 +134,10 @@ function getCredit (schoolId, schoolPw) {
             // debug(row[key])
             if (row[key] === 'P') {
               row[key] = 100
-            } else {
+            }
+            else if (row[key] === '抵') {
+              row[key] = 100
+            }else {
               row[key] = 0
             }
           }
@@ -175,8 +178,7 @@ function getCredit (schoolId, schoolPw) {
             }
             else if (row[key] === '抵') {
               row[key] = 100
-            }
-            else {
+            }else {
               row[key] = 0
             }
           }
