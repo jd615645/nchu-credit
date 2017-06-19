@@ -172,7 +172,11 @@ function getCredit (schoolId, schoolPw) {
           } else if (key === '成績') {
             if (row[key] === 'P') {
               row[key] = 100
-            } else {
+            }
+            else if (row[key] === '抵') {
+              row[key] = 100
+            }
+            else {
               row[key] = 0
             }
           }
