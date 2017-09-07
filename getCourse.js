@@ -7,54 +7,15 @@ const _ = require('lodash')
 const request = require('request')
 const j = request.jar()
 const rp = require('request-promise')
+const envDev = require.main === module
 
-const http = require('http')
-const Router = require('router')
-const bodyParser = require('body-parser')
-
-var router = new Router()
-
-var server = http.createServer((req, res) => {
-  router(req, res, (err) => {
-    if (!err) {
-      res.writeHead(404)
-    } else {
-      // Handle errors
-      console.log(err.message, err.stack)
-      res.writeHead(400)
-    }
-    res.end('RESTful API Server is running!')
-  })
-})
-
-server.listen(3001, () => {
-  console.log('Listening on port 3001')
-})
-router.use(bodyParser.urlencoded())
-
-router.post('/', getData)
-
-function getData (req, res) {
-  // console.log(req.body)
-  let postData = req.body
-  let schoolId = postData.id
-  let schoolPw = postData.pw
-
-  res.writeHead(201, {
-    'Content-Type': 'text/plain'
-  })
-
+var getCredit = exports.getCredit = (id, pw) => {
   try {
-    getCredit(schoolId, schoolPw).then(data => {
-      res.end(JSON.stringify(data))
-    })
-  } catch(e) {
-    console.log(e)
-    res.end('error')
-  }
-}
+    if (envDev) {
+      fs.writeFileSync('./debug.html', '')
+    }
+  } catch (e) {}
 
-function getCredit (schoolId, schoolPw) {
   const nchuam = 'https://nchu-am.nchu.edu.tw/nidp/'
   const portal = 'https://portal.nchu.edu.tw/portal/'
   const onepiece = 'https://onepiece2.nchu.edu.tw/cofsys/plsql/'
@@ -64,40 +25,49 @@ function getCredit (schoolId, schoolPw) {
     simple: false,
     followRedirect: true
   })
+
   let courseList = {
-    'studentName': '',
-    'studentDept': '',
-    'courseList': []
+    'name': 'name',
+    'studentId': id,
+    'list': []
   }
 
   return rpcookie(nchuam + 'idff/sso?id=63&sid=0&option=credential&sid=0')
     .then($ => {
+      // debug($('form'))
+
       return rpcookie.post(nchuam + 'idff/sso?id=63&sid=0&option=credential&sid=0', {form: {
-          'Ecom_User_ID': schoolId,
-          'Ecom_Password': schoolPw,
+          'Ecom_User_ID': nchu['id'],
+          'Ecom_Password': nchu['pw'],
           'option': 'credential',
           'target': 'https://portal.nchu.edu.tw/portal'
       }})
     })
     .then($ => {
+      // debug($)
       return rpcookie(nchuam + 'app?sid=0')
     })
     .then($ => {
+      // debug($)
       return rpcookie.post(portal + 'j_spring_security_check', {form: {
-          'j_username': schoolId,
-          'j_password': schoolPw
+          'j_username': nchu['id'],
+          'j_password': nchu['pw']
       }})
     })
     .then($ => {
+      // debug($)
+      // console.log($)
       return rpcookie(portal)
     })
     .then($ => {
+      // debug($('#profile'))
       return rpcookie(onepiece + 'acad_home')
     })
     .then($ => {
+      // debug($)
       return rpcookie.post(onepiece + 'ACAD_PASSCHK', {form: {
-          v_emp: schoolId,
-          v_pwd: schoolPw,
+          v_emp: nchu['id'],
+          v_pwd: nchu['pw'],
           v_lang: 'chn'
       }})
     })
@@ -106,9 +76,7 @@ function getCredit (schoolId, schoolPw) {
     })
     .then($ => {
       let name = cheerio($('font')[3]).text()
-      let dept = cheerio($('font')[6]).text().split(' ')[0]
-      courseList['studentName'] = name
-      courseList['studentDept'] = dept
+      courseList['name'] = name
     })
     .then($ => {
       // debug($)
@@ -176,11 +144,36 @@ function getCredit (schoolId, schoolPw) {
               }
             })
 
-            courseList['courseList'].push(row)
+            console.log(row)
           })
           year++
         }
       })
-      return courseList
     })
+}
+
+function debug ($) {
+  if (!envDev) {
+    return
+  }
+  fs.appendFileAsync('debug.html', enities.decode($.html()))
+}
+
+function debugJson (json) {
+  if (!envDev) {
+    return
+  }
+  if (!_.isString(json)) {
+    json = JSON.stringify(json, null, 2)
+  }
+  fs.appendFileAsync('debug.html', json)
+}
+
+if (envDev) {
+  // main function for test
+  var nchu = require('./nchu.json')
+
+  getCredit(nchu.id, nchu.pw).then(debugJson).catch(e => {
+    console.log(e)
+  })
 }
